@@ -1,12 +1,15 @@
 # esp8266-zabbix
 Simple examples for creating zabbix-agent on ESP-devices
 
-These components were used for development:
+# These components were used for development:
 
-NodeMCU v3
-DHT11
-DS18B20
+1) `NodeMCU v3`
+2) `DHT11`
+3) `DS18B20`
 
+# Sources
+1) Async web-server was taken [here](https://randomnerdtutorials.com/esp8266-dht11dht22-temperature-and-humidity-web-server-with-arduino-ide/)
+2) Zabbix Agent by [Azq2](https://github.com/Azq2)
 
 # dht11.ino
 Simple script, including:
