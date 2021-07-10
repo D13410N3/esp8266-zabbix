@@ -38,35 +38,35 @@ Simple script, including:
 
 * Pattern for Zabbix (DHT11 sensor). Tested on 5.4. 
 * Included items:
-    1) agent.ping
-    2) agent.hostname
-    3) agent.uptime
-    4) agent.version
-    5) read.temperature
-    6) read.humidity
+    - agent.ping
+    - agent.hostname
+    - agent.uptime
+    - agent.version
+    - read.temperature
+    - read.humidity
 * Triggers:
-    1) ESP is unavailable
-    2) ESP was restarted
-    3) Hostname was changed
-    4) Agent Version was changed
+    - ESP is unavailable
+    - ESP was restarted
+    - Hostname was changed
+    - Agent Version was changed
 * Simple graphs:
-    1) Temperature
-    2) Humidity
-    3) Temperature & humidity
+    - Temperature
+    - Humidity
+    - Temperature & humidity
     
 # esp8266-ds18b20-zabbix-agent.xml
 
 * Pattern for Zabbix (DS18B20 sensor). Tested on 5.4. 
 * Included items:
-    1) agent.ping
-    2) agent.hostname
-    3) agent.uptime
-    4) agent.version
-    5) read.temperature
+    - agent.ping
+    - agent.hostname
+    - agent.uptime
+    - agent.version
+    - read.temperature
 * Triggers:
-    1) ESP is unavailable
-    2) ESP was restarted
-    3) Hostname was changed
-    4) Agent Version was changed
+    - ESP is unavailable
+    - ESP was restarted
+    - Hostname was changed
+    - Agent Version was changed
 * Simple graphs:
-    1) Temperature
+    - Temperature
