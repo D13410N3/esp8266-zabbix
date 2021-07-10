@@ -35,6 +35,7 @@ Simple script, including:
     - read.temperature
 
 # esp8266-dht-zabbix-agent.xml
+
 Pattern for Zabbix (DHT11 sensor). Tested on 5.4. 
 Included items:
     1) agent.ping
@@ -54,6 +55,7 @@ Simple graphs:
     3) Temperature & humidity
     
 # esp8266-ds18b20-zabbix-agent.xml
+
 Pattern for Zabbix (DS18B20 sensor). Tested on 5.4. 
 Included items:
     1) agent.ping
