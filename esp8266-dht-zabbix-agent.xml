@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.4</version>
+    <date>2021-07-10T12:09:57Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template ESP8266-DHT</template>
+            <name>Template ESP8266-DHT</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <items>
+                <item>
+                    <name>Host name of zabbix_agentd running</name>
+                    <key>agent.hostname</key>
+                    <delay>1h</delay>
+                    <history>180d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff(0)}&gt;0</expression>
+                            <name>Host name of zabbix_agentd was changed on {HOST.NAME}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Agent ping</name>
+                    <key>agent.ping</key>
+                    <delay>15s</delay>
+                    <history>180d</history>
+                    <description>The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.</description>
+                    <valuemap>
+                        <name>Zabbix agent ping status</name>
+                    </valuemap>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{nodata(1m)}=1</expression>
+                            <name>Zabbix agent on {HOST.NAME} is unreachable for 1 minute</name>
+                            <priority>AVERAGE</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Agent Uptime</name>
+                    <key>agent.uptime</key>
+                    <history>180d</history>
+                    <units>uptime</units>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;=10m</expression>
+                            <name>{HOST.NAME} was restarted (uptime &lt; 10 min)</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Version of zabbix_agent(d) running</name>
+                    <key>agent.version</key>
+                    <delay>1h</delay>
+                    <history>180d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff(0)}&gt;0</expression>
+                            <name>Version of zabbix_agent(d) was changed on {HOST.NAME}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>DHT Sensor Humidity</name>
+                    <key>read.humidity</key>
+                    <delay>30s</delay>
+                    <history>180d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                </item>
+                <item>
+                    <name>DHT Sensor Temperature</name>
+                    <key>read.temperature</key>
+                    <delay>30s</delay>
+                    <history>180d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>°C</units>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                </item>
+            </items>
+            <valuemaps>
+                <valuemap>
+                    <name>Zabbix agent ping status</name>
+                    <mappings>
+                        <mapping>
+                            <value>1</value>
+                            <newvalue>Up</newvalue>
+                        </mapping>
+                    </mappings>
+                </valuemap>
+            </valuemaps>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>Humidity</name>
+            <width>600</width>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>00BFFF</color>
+                    <item>
+                        <host>Template ESP8266-DHT</host>
+                        <key>read.humidity</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Temperature</name>
+            <width>600</width>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template ESP8266-DHT</host>
+                        <key>read.temperature</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Temperature &amp; Humidity</name>
+            <width>600</width>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template ESP8266-DHT</host>
+                        <key>read.temperature</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>00BFFF</color>
+                    <item>
+                        <host>Template ESP8266-DHT</host>
+                        <key>read.humidity</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
