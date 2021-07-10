@@ -37,34 +37,34 @@ Simple script, including:
 # esp8266-dht-zabbix-agent.xml
 Pattern for Zabbix (DHT11 sensor). Tested on 5.4. 
 Included items:
-    - agent.ping
-    - agent.hostname
-    - agent.uptime
-    - agent.version
-    - read.temperature
-    - read.humidity
+    1) agent.ping
+    2) agent.hostname
+    3) agent.uptime
+    4) agent.version
+    5) read.temperature
+    6) read.humidity
 Triggers:
-    - ESP is unavailable
-    - ESP was restarted
-    - Hostname was changed
-    - Agent Version was changed
+    1) ESP is unavailable
+    2) ESP was restarted
+    3) Hostname was changed
+    4) Agent Version was changed
 Simple graphs:
-    - Temperature
-    - Humidity
-    - Temperature & humidity
+    1) Temperature
+    2) Humidity
+    3) Temperature & humidity
     
 # esp8266-ds18b20-zabbix-agent.xml
 Pattern for Zabbix (DS18B20 sensor). Tested on 5.4. 
 Included items:
-    - agent.ping
-    - agent.hostname
-    - agent.uptime
-    - agent.version
-    - read.temperature
+    1) agent.ping
+    2) agent.hostname
+    3) agent.uptime
+    4) agent.version
+    5) read.temperature
 Triggers:
-    - ESP is unavailable
-    - ESP was restarted
-    - Hostname was changed
-    - Agent Version was changed
+    1) ESP is unavailable
+    2) ESP was restarted
+    3) Hostname was changed
+    4) Agent Version was changed
 Simple graphs:
-    - Temperature
+    1) Temperature
