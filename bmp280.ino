@@ -24,8 +24,8 @@
 #include <Adafruit_BMP280.h>
 
 // Replace with your network credentials
-const char* ssid = "ASUS"; // replace with your ssid
-const char* password = "23tvaarrb1314"; // replace with your key
+const char* ssid = "SSID"; // replace with your ssid
+const char* password = "PASSWORD"; // replace with your key
 const String hostname = "Home.ESP.BMP280.1"; // hostname for zabbix
 
 WiFiServer AgentServer(10050);
