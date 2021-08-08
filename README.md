@@ -23,6 +23,18 @@ Simple script, including:
     - read.temperature
     - read.humidity
 
+# bmp280.ino
+Simple script, including:
+1) Reading temperature & pressure from BMP280 sensor (maybe should work for BMP180 too, idk)
+2) Providing simple web-server for displaying them (routes are: "/", "/temperature", "/pressure")
+3) Zabbix-agent on port 10050 with this items:
+    - agent.ping
+    - agent.hostname
+    - agent.uptime
+    - agent.version
+    - read.temperature
+    - read.pressure
+
 # ds18b20-discover.ino
 Simple script for detecting 64-bit addresses of DS18B20 sensors. Flash it & view address in console
 
@@ -56,6 +68,25 @@ Simple script, including:
     - Temperature
     - Humidity
     - Temperature & humidity
+
+# esp8266-bmp280-zabbix-agent.xml
+
+* Pattern for Zabbix (BMP280 sensor). Tested on 5.4. 
+* Included items:
+    - agent.ping
+    - agent.hostname
+    - agent.uptime
+    - agent.version
+    - read.temperature
+    - read.pressure
+* Triggers:
+    - ESP is unavailable
+    - ESP was restarted
+    - Hostname was changed
+    - Agent Version was changed
+* Simple graphs:
+    - Temperature
+    - Pressure
     
 # esp8266-ds18b20-zabbix-agent.xml
 
