@@ -6,6 +6,10 @@
 #include <AHT10.h>
 #include <Wire.h>
 
+// YOU NEED THIS LIBRARY (AHT10.h) TO MAKE IT WORK!!!
+// https://github.com/enjoyneering/AHT10
+// Download ZIP and install it manually in Arduino IDE
+
 // Replace with your network credentials
 const char* ssid = "SSID"; // replace with your ssid
 const char* password = "PASSWORD"; // replace with your key
