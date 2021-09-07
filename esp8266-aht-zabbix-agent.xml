@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.4</version>
+    <date>2021-09-07T19:39:10Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template ESP8266-AHT</template>
+            <name>Template ESP8266-AHT</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <items>
+                <item>
+                    <name>Host name of zabbix_agentd running</name>
+                    <key>agent.hostname</key>
+                    <delay>1h</delay>
+                    <history>180d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff(0)}&gt;0</expression>
+                            <name>Hostname was changed on {HOST.NAME}</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Agent ping</name>
+                    <key>agent.ping</key>
+                    <history>180d</history>
+                    <description>The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.</description>
+                    <valuemap>
+                        <name>Zabbix agent ping status</name>
+                    </valuemap>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{nodata(10m)}=1</expression>
+                            <name>{HOST.NAME} is unreachable for 10 minutes</name>
+                            <priority>AVERAGE</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Agent Uptime</name>
+                    <key>agent.uptime</key>
+                    <history>180d</history>
+                    <units>uptime</units>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;=10m</expression>
+                            <name>{HOST.NAME} was restarted (uptime &lt; 10 minutes)</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Version of zabbix_agent(d) running</name>
+                    <key>agent.version</key>
+                    <delay>1h</delay>
+                    <history>180d</history>
+                    <trends>0</trends>
+                    <value_type>CHAR</value_type>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff(0)}&gt;0</expression>
+                            <name>{HOST.NAME} - new Agent version</name>
+                            <priority>INFO</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Влажность</name>
+                    <key>read.humidity</key>
+                    <history>180d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                </item>
+                <item>
+                    <name>Температура</name>
+                    <key>read.temperature</key>
+                    <history>180d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>°C</units>
+                    <tags>
+                        <tag>
+                            <tag>Application</tag>
+                            <value>Zabbix agent</value>
+                        </tag>
+                    </tags>
+                </item>
+            </items>
+            <valuemaps>
+                <valuemap>
+                    <name>Zabbix agent ping status</name>
+                    <mappings>
+                        <mapping>
+                            <value>1</value>
+                            <newvalue>Up</newvalue>
+                        </mapping>
+                    </mappings>
+                </valuemap>
+            </valuemaps>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>Humidity</name>
+            <width>600</width>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>00BFFF</color>
+                    <item>
+                        <host>Template ESP8266-AHT</host>
+                        <key>read.humidity</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Temperature</name>
+            <width>600</width>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template ESP8266-AHT</host>
+                        <key>read.temperature</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Temperature &amp; Humidity</name>
+            <width>600</width>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template ESP8266-AHT</host>
+                        <key>read.temperature</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>00BFFF</color>
+                    <item>
+                        <host>Template ESP8266-AHT</host>
+                        <key>read.humidity</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
