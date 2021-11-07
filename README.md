@@ -6,7 +6,7 @@ Simple examples for creating zabbix-agent on ESP-devices
 1) `NodeMCU v3`
 2) `Wemos D1 Mini`
 3) `DHT11`
-4) `DS18B20`
+4) `DS18B20` (Tested only with D2 pin, I recommend to use it. GPIO16 (D0) can't be used - checked by me twice)
 5) `BMP280`
 6) `AHT10`
 
