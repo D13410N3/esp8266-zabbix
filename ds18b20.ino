@@ -21,7 +21,9 @@ OneWire oneWire(ONE_WIRE_BUS);
 
 DallasTemperature sensors(&oneWire);
 
-uint8_t sensor1[8] = { 0x28, 0x88, 0x12, 0x76, 0xE0, 0x01, 0x3C, 0x15 }; // REPLACE WITH YOUR NUMBER
+// Uncomment this section if you want to request temperature from specific sensor (for example, you have > 1 of them. If you have only one sensor connected, skip this field - temperature will be got by sensor-index=0.
+// To get sensor address use ds18b20-discovery - https://github.com/ICQFan4ever/esp8266-zabbix/blob/main/ds18b20-discover.ino
+// uint8_t sensor1[8] = { 0x28, 0x88, 0x12, 0x76, 0xE0, 0x01, 0x3C, 0x15 };
 
 float t = 0.0;
 
@@ -261,7 +263,10 @@ void loop(){
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
     sensors.requestTemperatures();
-    t = sensors.getTempC(sensor1);
+    // Uncomment this section if you want to get temperature from specific sensor using it address (view top of file). Otherwise use default method - getTempCByIndex(0)
+    // t = sensors.getTempC(sensor1);
+    t = sensors.getTempCByIndex(0);
+    Serial.println(t);
   }
   
   zabbixAgent();
