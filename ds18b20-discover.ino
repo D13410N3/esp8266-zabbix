@@ -2,6 +2,7 @@
 #include <DallasTemperature.h>
 
 #define ONE_WIRE_BUS D2
+// PIN 'D0' DOESN'T WORK!!!
 
 OneWire oneWire(ONE_WIRE_BUS);
 
