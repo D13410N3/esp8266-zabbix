@@ -1,32 +1,29 @@
-#include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <Hash.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <AHT10.h>
-#include <Wire.h>
-
-// YOU NEED THIS LIBRARY (AHT10.h) TO MAKE IT WORK!!!
-// https://github.com/enjoyneering/AHT10
-// Download ZIP and install it manually in Arduino IDE
+#include <OneWire.h>
+#include <AHTxx.h>
 
 // Replace with your network credentials
 const char* ssid = "SSID"; // replace with your ssid
 const char* password = "PASSWORD"; // replace with your key
-const String hostname = "HOSTNAME"; // hostname for zabbix
+const String hostname = "AHT10"; // hostname for zabbix
 
-WiFiServer AgentServer(10050);
+/* 
+ *  SDA SHOULD BE CONNECTED TO GPIO4 (D2)
+ *  SCL SHOULD BE CONNECTED TO GPIO5 (D1)
+ *  You should download and install this library: https://github.com/enjoyneering/AHTxx
+*/
 
-AHT10 myAHT20(AHT10_ADDRESS_0X38, AHT20_SENSOR);
 
 float t = 0.0;
-float h = 0.0;
+float h = 0;
 
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
+AHTxx aht10(AHTXX_ADDRESS_X38, AHT1x_SENSOR); // initializing sensor
+WiFiServer AgentServer(10050); // starting Zabbix-agent in passive mode
+AsyncWebServer server(80); // Starting web server
 
-// Generally, you should use "unsigned long" for variables that hold time
-// The value will quickly become too large for an int to store
+
 unsigned long previousMillis = 0;    // will store last time AHT was updated
 
 // Updates AHT readings every 10 seconds
@@ -80,7 +77,6 @@ setInterval(function ( ) {
   xhttp.open("GET", "/temperature", true);
   xhttp.send();
 }, 10000 ) ;
-
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -100,32 +96,35 @@ String processor(const String& var){
   if(var == "TEMPERATURE"){
     return String(t);
   }
-  else if(var == "HUMIDITY"){
-    return String(h);
-  }
-  else if(var == "HOSTNAME"){
+  else if(var == "HOSTNAME") {
     return hostname;
+  }
+  else if(var == "HUMIDITY") {
+    return String(h);
   }
   return String();
 }
 
 void setup(){
   // Serial port for debugging purposes
-  Serial.begin(115200);  
+  Serial.begin(115200);
+
+
+  while (aht10.begin() != true)
+  {
+    Serial.println(F("AHT1x not connected or fail to load calibration coefficient")); //(F()) save string to flash & keeps dynamic memory free
+
+    delay(5000);
+  }
+
+  Serial.println(F("AHT10 OK"));
+  
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   Serial.println("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
-
-  // aht10 initializing
-  while (myAHT20.begin() != true)
-  {
-    Serial.println(F("AHT20 not connected or fail to load calibration coefficient"));
-    delay(5000);
-  }
-  Serial.println(F("AHT20 OK"));
 
 
   // Route for root / web page
@@ -137,9 +136,6 @@ void setup(){
     request->send_P(200, "text/plain", String(t).c_str());
   });
   
-  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", String(h).c_str());
-  });
 
   // Start web-server
   server.begin();
@@ -259,9 +255,6 @@ void zabbixAgent() {
   } else if (strcmp(command, "read.temperature") == 0) {
     Serial.println("->temperature");
     zabbixAgentAnswer(&client, String(t).c_str());
-  } else if (strcmp(command, "read.humidity") == 0) {
-    Serial.println("->humidity");
-    zabbixAgentAnswer(&client, String(h).c_str());
   } else {
     Serial.println("->unknown command");
     zabbixAgentAnswer(&client, "ZBX_NOTSUPPORTED");
@@ -276,30 +269,13 @@ void zabbixAgent() {
 void loop(){  
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
-    // save the last time you updated the AHT values
     previousMillis = currentMillis;
-    // Read temperature as Celsius (the default)
-    float newT = myAHT20.readTemperature();
-    // if temperature read failed, don't change t value
-    if (isnan(newT) || newT == 255) {
-      Serial.println("Failed to read from AHT sensor!");
-      Serial.println(newT);
-    }
-    else {
-      t = newT;
-      Serial.println(t);
-    }
-    // Read Humidity
-    float newH = myAHT20.readHumidity();
-    // if humidity read failed, don't change h value 
-    if (isnan(newH) || newT == 255) {
-      Serial.println("Failed to read from AHT sensor!");
-      Serial.println(newH);
-    }
-    else {
-      h = newH;
-      Serial.println(h);
-    }
+    // Uncomment this section if you want to get temperature from specific sensor using it address (view top of file). Otherwise use default method - getTempCByIndex(0)
+    // t = sensors.getTempC(sensor1);
+    t = aht10.readTemperature();
+    h = aht10.readHumidity();
+    Serial.println(t);
+    Serial.println(h);
   }
   
   zabbixAgent();
