@@ -39,8 +39,9 @@ Simple script, including:
     - read.temperature
     - read.pressure
 
-# ds18b20-discover.ino
+# ds18b20-discover.ino (legacy)
 Simple script for detecting 64-bit addresses of DS18B20 sensors. Flash it & view address in console
+Update: if you're using only one sensor - no need to do this, view `ds18b20.ino` comments section
 
 # ds18b20.ino
 Simple script, including:
