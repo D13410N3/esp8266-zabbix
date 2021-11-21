@@ -13,7 +13,7 @@ Simple examples for creating zabbix-agent on ESP-devices
 # Sources
 1) Async web-server was taken [here](https://randomnerdtutorials.com/esp8266-dht11dht22-temperature-and-humidity-web-server-with-arduino-ide/)
 2) Zabbix Agent by [Azq2](https://github.com/Azq2)
-3) AHT10 Library by [enjoyneering](https://github.com/enjoyneering/AHT10)
+3) AHTxx Library by [enjoyneering](https://github.com/enjoyneering/AHTxx)
 
 # dht11.ino
 Simple script, including:
