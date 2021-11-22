@@ -255,6 +255,9 @@ void zabbixAgent() {
   } else if (strcmp(command, "read.temperature") == 0) {
     Serial.println("->temperature");
     zabbixAgentAnswer(&client, String(t).c_str());
+  } else if (strcmp(command, "read.humidity") == 0) {
+    Serial.println("->humidity");
+    zabbixAgentAnswer(&client, String(h).c_str());
   } else {
     Serial.println("->unknown command");
     zabbixAgentAnswer(&client, "ZBX_NOTSUPPORTED");
