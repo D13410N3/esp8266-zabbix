@@ -15,6 +15,9 @@ Simple examples for creating zabbix-agent on ESP-devices
 2) Zabbix Agent by [Azq2](https://github.com/Azq2)
 3) AHTxx Library by [enjoyneering](https://github.com/enjoyneering/AHTxx)
 
+# Known issues
+1) Because of using millis() / 1000 as uptime, zabbix value can't be more than 41 days 17 hours (int32 overflow)
+
 # dht11.ino
 Simple script, including:
 1) Reading temperature & humidity from DHT11 sensor (should work for DHT22 too)
