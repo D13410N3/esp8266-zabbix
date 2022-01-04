@@ -16,7 +16,8 @@ Simple examples for creating zabbix-agent on ESP-devices
 3) AHTxx Library by [enjoyneering](https://github.com/enjoyneering/AHTxx)
 
 # Known issues
-1) Because of using millis() / 1000 as uptime, zabbix value can't be more than 41 days 17 hours (int32 overflow)
+1) Because of using millis() / 1000 as uptime, zabbix uptime value can't be more than 41 days 17 hours (int32 overflow). You'll recieve "Device was restarted" message
+2) Sometimes devices are losing wi-fi connectivity in roaming wireless networks (such as CAPsMAN on Mikrotik)
 
 # dht11.ino
 Simple script, including:
