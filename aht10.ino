@@ -136,6 +136,10 @@ void setup(){
     request->send_P(200, "text/plain", String(t).c_str());
   });
   
+  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(h).c_str());
+  });
+  
 
   // Start web-server
   server.begin();
