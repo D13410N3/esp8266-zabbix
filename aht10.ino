@@ -4,10 +4,7 @@
 #include <OneWire.h>
 #include <AHTxx.h>
 
-// Replace with your network credentials
-const char* ssid = "SSID"; // replace with your ssid
-const char* password = "PASSWORD"; // replace with your key
-const String hostname = "AHT10"; // hostname for zabbix
+
 
 /* 
  *  SDA SHOULD BE CONNECTED TO GPIO4 (D2)
@@ -16,57 +13,38 @@ const String hostname = "AHT10"; // hostname for zabbix
 */
 
 
+// REPLACE WITH YOUR DATA
+const char* ssid = "SSID"; // replace with your ssid
+const char* password = "PASSWORD"; // replace with your key
+const String hostname = "Home.ESP.Bigroom.AHT10"; // hostname
+const String esptype = "AHT10"; // ESP-type
+String localip;
+
+// Dynamic variables preset
 float t = 0.0;
 float h = 0;
+unsigned long uptime = 0;
 
-AHTxx aht10(AHTXX_ADDRESS_X38, AHT1x_SENSOR); // initializing sensor
-WiFiServer AgentServer(10050); // starting Zabbix-agent in passive mode
-AsyncWebServer server(80); // Starting web server
+// Sensor init
+AHTxx aht10(AHTXX_ADDRESS_X38, AHT1x_SENSOR);
+// Starting Zabbix-agent in passive mode
+WiFiServer AgentServer(10050);
+// Starting web server
+AsyncWebServer server(80);
 
 
-unsigned long previousMillis = 0;    // will store last time AHT was updated
+// This will store last time AHT was updated
+unsigned long previousMillis = 0;
 
 // Updates AHT readings every 10 seconds
 const long interval = 10000;  
 
-const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML><html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-  <style>
-    html {
-     font-family: Arial;
-     display: inline-block;
-     margin: 0px auto;
-     text-align: center;
-    }
-    h2 { font-size: 3.0rem; }
-    p { font-size: 3.0rem; }
-    .units { font-size: 1.2rem; }
-    .dht-labels{
-      font-size: 1.5rem;
-      vertical-align:middle;
-      padding-bottom: 15px;
-    }
-  </style>
-</head>
-<body>
-  <h2>%HOSTNAME%</h2>
-  <p>
-    <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
-    <span class="dht-labels">Temperature</span> 
-    <span id="temperature">%TEMPERATURE%</span>
-    <sup class="units">&deg;C</sup>
-  </p>
-  <p>
-    <i class="fas fa-tint" style="color:#00add6;"></i> 
-    <span class="dht-labels">Humidity</span>
-    <span id="humidity">%HUMIDITY%</span>
-    <sup class="units">%</sup>
-  </p>
-</body>
-<script>
+// index-page
+const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE HTML><html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<style>html{font-family: Arial; display: inline-block; margin: 0px auto; text-align: center;}h2{font-size: 3.0rem;}p{font-size: 3.0rem;}.units{font-size: 1.2rem;}.dht-labels{font-size: 1.5rem; vertical-align:middle; padding-bottom: 15px;}</style></head>
+<body> <h2>%HOSTNAME%</h2> <p> <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> <span class="dht-labels">Temperature</span> <span id="temperature">%TEMPERATURE%</span> <sup class="units">&deg;C</sup> </p>
+<p> <i class="fas fa-tint" style="color:#00add6;"></i> <span class="dht-labels">Humidity</span> <span id="humidity">%HUMIDITY%</span> <sup class="units">%</sup> </p></body><script>
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -87,12 +65,22 @@ setInterval(function ( ) {
   xhttp.open("GET", "/humidity", true);
   xhttp.send();
 }, 10000 ) ;
-</script>
-</html>)rawliteral";
+</script></html>)rawliteral";
+
+
+// Prometheus-metrics page
+const char metrics[] PROGMEM = R"rawliteral(# HELP esp_device General information about ESP-device using labels. Value is uptime in seconds
+# TYPE esp_device gauge
+# HELP esp_sensor Value of esp sensor
+# TYPE esp_sensor gauge
+
+esp_device {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%"} %UPTIME%
+esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="temperature"} %TEMPERATURE%
+esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="humidity"} %HUMIDITY%
+)rawliteral"; 
 
 // Replaces placeholder with AHT values
 String processor(const String& var){
-  //Serial.println(var);
   if(var == "TEMPERATURE"){
     return String(t);
   }
@@ -101,6 +89,15 @@ String processor(const String& var){
   }
   else if(var == "HUMIDITY") {
     return String(h);
+  }
+  else if(var == "LOCALIP") {
+    return localip;
+  }
+  else if(var == "ESPTYPE") {
+    return esptype;
+  }
+  else if(var == "UPTIME") {
+    return String(uptime);
   }
   return String();
 }
@@ -121,15 +118,21 @@ void setup(){
   
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  Serial.println("Connecting to WiFi");
+  // Serial.println("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
+  
+  // Saving local IP
+  localip = WiFi.localIP().toString();
 
-
-  // Route for root / web page
+  // Routes for pages
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
+  });
+
+  server.on("/metrics", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", metrics, processor);
   });
   
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -139,7 +142,6 @@ void setup(){
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", String(h).c_str());
   });
-  
 
   // Start web-server
   server.begin();
@@ -148,6 +150,7 @@ void setup(){
   AgentServer.begin();
   AgentServer.setNoDelay(true);
 }
+
 
 void zabbixAgentAnswer(WiFiClient *client, String data) {
   unsigned int tmp;
@@ -277,13 +280,12 @@ void loop(){
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    // Uncomment this section if you want to get temperature from specific sensor using it address (view top of file). Otherwise use default method - getTempCByIndex(0)
-    // t = sensors.getTempC(sensor1);
     t = aht10.readTemperature();
     h = aht10.readHumidity();
     Serial.println(t);
     Serial.println(h);
+    Serial.println();
   }
-  
+  uptime = (int)currentMillis / 1000;
   zabbixAgent();
 }
