@@ -1,57 +1,63 @@
 /***************************************************************************
   This is a library for the BMP280 humidity, temperature & pressure sensor
-
   Designed specifically to work with the Adafruit BMP280 Breakout
   ----> http://www.adafruit.com/products/2651
-
   These sensors use I2C or SPI to communicate, 2 or 4 pins are required
   to interface.
-
   Adafruit invests time and resources providing this open source code,
   please support Adafruit andopen-source hardware by purchasing products
   from Adafruit!
-
   Written by Limor Fried & Kevin Townsend for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
+ 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <Hash.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Wire.h>
-#include <SPI.h>
 #include <Adafruit_BMP280.h>
 
 // Replace with your network credentials
 const char* ssid = "SSID"; // replace with your ssid
 const char* password = "PASSWORD"; // replace with your key
-const String hostname = "Home.ESP.BMP280.1"; // hostname for zabbix
+const String hostname = "Home.ESP.BMP280.1"; // hostname
+const String esptype = "BMP280"; // ESP-type
+String localip;
 
+// Dynamic variables preset
+float t = 0.0;
+float p = 0.0;
+unsigned long uptime = 0;
+
+// Declaring services
 WiFiServer AgentServer(10050);
 AsyncWebServer server(80);
 
 /*
+ * Use this pinout
 SDO - MISO - D4 - 2
 SDA - MOSI - D2 - 4
 SCL - SCK - D1 - 5
 CSB - CS - D3 - 0
  */
 
+// Defining PINs
 #define BMP_SCK  (5)
 #define BMP_MISO (2)
 #define BMP_MOSI (4)
 #define BMP_CS   (0)
 
 
+// Sensor init
 Adafruit_BMP280 bmp(BMP_CS, BMP_MOSI, BMP_MISO,  BMP_SCK);
 
-float t = 0.0;
-float p = 0.0;
 
+// This var weill store last update stamp
 unsigned long previousMillis = 0;
+// Update interval (milliseconds)
 const long interval = 10000;  
 
+// Template for index-page
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
@@ -100,7 +106,6 @@ setInterval(function ( ) {
   xhttp.open("GET", "/temperature", true);
   xhttp.send();
 }, 10000 ) ;
-
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -114,18 +119,36 @@ setInterval(function ( ) {
 </script>
 </html>)rawliteral";
 
+// Template for prometheus-metrics page
+const char metrics[] PROGMEM = R"rawliteral(# HELP esp_device General information about ESP-device using labels. Value is uptime in seconds
+# TYPE esp_device gauge
+# HELP esp_sensor Value of esp sensor
+# TYPE esp_sensor gauge
+esp_device {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%"} %UPTIME%
+esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="temperature"} %TEMPERATURE%
+esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="pressure"} %PRESSURE%
+)rawliteral"; 
 
-// Replaces placeholder with DHT values
+
+// Replaces placeholder with values
 String processor(const String& var){
-  //Serial.println(var);
   if(var == "TEMPERATURE"){
     return String(t);
   }
-  else if(var == "PRESSURE"){
+  else if(var == "HOSTNAME") {
+    return hostname;
+  }
+  else if(var == "PRESSURE") {
     return String(p);
   }
-  else if(var == "HOSTNAME"){
-    return hostname;
+  else if(var == "LOCALIP") {
+    return localip;
+  }
+  else if(var == "ESPTYPE") {
+    return esptype;
+  }
+  else if(var == "UPTIME") {
+    return String(uptime);
   }
   return String();
 }
@@ -148,17 +171,24 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
-    // Connect to Wi-Fi
+  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   Serial.println("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
 
+  // Saving local IP
+  localip = WiFi.localIP().toString();
 
-  // Route for root / web page
+
+  // Routes for pages
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
+  });
+
+  server.on("/metrics", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", metrics, processor);
   });
   
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -328,10 +358,7 @@ void loop() {
       Serial.println();
     } 
 
-    /*
-    Serial.print(F("Approx altitude = "));
-    Serial.print(bmp.readAltitude(1013.25)); // Adjusted to local forecast! 
-    Serial.println(" m");
-    */
+    uptime = (int)currentMillis / 1000;
+    
     zabbixAgent();
 }
