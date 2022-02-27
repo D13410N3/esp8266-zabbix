@@ -42,6 +42,10 @@ Simple script, including:
     - agent.version
     - read.temperature
     - read.pressure
+4) Prometheus exporter on `http://IP/metrics` with this metrics:
+    - `esp_device {ip="DEVICE_IP", type="BMP280", title="HOSTNAME"} UPTIME`
+    - `esp_sensor {ip="DEVICE_IP", type="BMP280", title="HOSTNAME", sensor="temperature"} TEMPERATURE`
+    - `esp_sensor {ip="DEVICE_IP", type="BMP280", title="HOSTNAME", sensor="pressure"} PRESSURE`
 
 # ds18b20-discover.ino (legacy)
 Simple script for detecting 64-bit addresses of DS18B20 sensors. Flash it & view address in console
