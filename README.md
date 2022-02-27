@@ -1,5 +1,5 @@
 # esp8266-zabbix
-Simple examples for creating zabbix-agent on ESP-devices
+Simple examples for creating zabbix-agent and prometheus-exporter (in progress) on ESP-devices
 
 # These components were used for development:
 
@@ -69,9 +69,13 @@ Simple script, including:
     - agent.version
     - read.temperature
     - read.humidity
+4) Prometheus exporter on `http://IP/metrics` with this metrics:
+    - `esp_device {ip="DEVICE_IP", type="AHT10", title="HOSTNAME"} UPTIME`
+    - `esp_sensor {ip="DEVICE_IP", type="AHT10", title="HOSTNAME", sensor="temperature"} TEMPERATURE`
+    - `esp_sensor {ip="DEVICE_IP", type="AHT10", title="HOSTNAME", sensor="humidity"} HUMIDITY`
 
 # esp8266-dht-zabbix-agent.xml
-* Pattern for Zabbix (DHT11 sensor). Tested on 5.4. 
+* Template for Zabbix (DHT11 sensor). Tested on 5.4. 
 * Included items:
     - agent.ping
     - agent.hostname
@@ -90,7 +94,7 @@ Simple script, including:
     - Temperature & humidity
 
 # esp8266-bmp280-zabbix-agent.xml
-* Pattern for Zabbix (BMP280 sensor). Tested on 5.4. 
+* Template for Zabbix (BMP280 sensor). Tested on 5.4. 
 * Included items:
     - agent.ping
     - agent.hostname
@@ -108,7 +112,7 @@ Simple script, including:
     - Pressure
     
 # esp8266-ds18b20-zabbix-agent.xml
-* Pattern for Zabbix (DS18B20 sensor). Tested on 5.4. 
+* Template for Zabbix (DS18B20 sensor). Tested on 5.4. 
 * Included items:
     - agent.ping
     - agent.hostname
@@ -124,7 +128,7 @@ Simple script, including:
     - Temperature
 
 # esp8266-aht-zabbix-agent.xml
-* Pattern for Zabbix (AHT10 sensor). Tested on 5.4. 
+* Template for Zabbix (AHT10 sensor). Tested on 5.4. 
 * Included items:
     - agent.ping
     - agent.hostname
