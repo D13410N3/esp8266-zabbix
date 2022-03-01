@@ -1,9 +1,6 @@
-#include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <Hash.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Adafruit_Sensor.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -13,19 +10,21 @@
 // Replace with your network credentials
 const char* ssid = "SSID"; // replace with your ssid
 const char* password = "PASSWORD"; // replace with your key
-const String hostname = "Home.ESP.DS18B20.2"; // hostname for zabbix
+const String hostname = "HOSTNAME"; // hostname
+const String esptype = "DS18B20"; // ESP-type
+String localip;
+
+// Dynamic variables preset
+float t = 0.0;
+unsigned long uptime = 0;
 
 WiFiServer AgentServer(10050);
-
 OneWire oneWire(ONE_WIRE_BUS);
-
 DallasTemperature sensors(&oneWire);
 
 // Uncomment this section if you want to request temperature from specific sensor (for example, you have > 1 of them. If you have only one sensor connected, skip this field - temperature will be got by sensor-index=0.
-// To get sensor address use ds18b20-discovery - https://github.com/ICQFan4ever/esp8266-zabbix/blob/main/ds18b20-discover.ino
+// To get sensor address use ds18b20-discovery - https://github.com/D13410N3/esp8266-zabbix/blob/main/ds18b20-discover.ino
 // uint8_t sensor1[8] = { 0x28, 0x88, 0x12, 0x76, 0xE0, 0x01, 0x3C, 0x15 };
-
-float t = 0.0;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -79,28 +78,35 @@ setInterval(function ( ) {
   xhttp.open("GET", "/temperature", true);
   xhttp.send();
 }, 10000 ) ;
-
-setInterval(function ( ) {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("humidity").innerHTML = this.responseText;
-    }
-  };
-  xhttp.open("GET", "/humidity", true);
-  xhttp.send();
-}, 10000 ) ;
 </script>
 </html>)rawliteral";
 
-// Replaces placeholder with DHT values
+// Prometheus-metrics page
+const char metrics[] PROGMEM = R"rawliteral(# HELP esp_device General information about ESP-device using labels. Value is uptime in seconds
+# TYPE esp_device gauge
+# HELP esp_sensor Value of esp sensor
+# TYPE esp_sensor gauge
+
+esp_device {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%"} %UPTIME%
+esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="temperature"} %TEMPERATURE%
+)rawliteral"; 
+
+// Replaces placeholder with sensor values
 String processor(const String& var){
-  //Serial.println(var);
   if(var == "TEMPERATURE"){
     return String(t);
   }
-  else if(var == "HOSTNAME"){
+  else if(var == "HOSTNAME") {
     return hostname;
+  }
+  else if(var == "LOCALIP") {
+    return localip;
+  }
+  else if(var == "ESPTYPE") {
+    return esptype;
+  }
+  else if(var == "UPTIME") {
+    return String(uptime);
   }
   return String();
 }
@@ -117,11 +123,17 @@ void setup(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
-
+  
+  // Saving local IP
+  localip = WiFi.localIP().toString();
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
+  });
+
+  server.on("/metrics", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", metrics, processor);
   });
   
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -268,6 +280,6 @@ void loop(){
     t = sensors.getTempCByIndex(0);
     Serial.println(t);
   }
-  
+  uptime = (int)currentMillis / 1000;
   zabbixAgent();
 }
