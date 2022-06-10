@@ -74,9 +74,9 @@ const char metrics[] PROGMEM = R"rawliteral(# HELP esp_device General informatio
 # HELP esp_sensor Value of esp sensor
 # TYPE esp_sensor gauge
 
-esp_device {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%"} %UPTIME%
-esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="temperature"} %TEMPERATURE%
-esp_sensor {ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="humidity"} %HUMIDITY%
+esp_device{ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%"} %UPTIME%
+esp_sensor{ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="temperature"} %TEMPERATURE%
+esp_sensor{ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="humidity"} %HUMIDITY%
 )rawliteral"; 
 
 // Replaces placeholder with AHT values
