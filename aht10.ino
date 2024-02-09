@@ -68,15 +68,15 @@ setInterval(function ( ) {
 </script></html>)rawliteral";
 
 
-// Prometheus-metrics page
-const char metrics[] PROGMEM = R"rawliteral(# HELP esp_device General information about ESP-device using labels. Value is uptime in seconds
-# TYPE esp_device gauge
-# HELP esp_sensor Value of esp sensor
-# TYPE esp_sensor gauge
+// Template for prometheus-metrics page
+const char metrics[] PROGMEM = R"rawliteral(# TYPE esp_device_uptime counter
+# HELP esp_device_uptime Device uptime
+# TYPE esp_sensor_value gauge
+# HELP esp_sensor_value Value of esp sensor
 
-esp_device{ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%"} %UPTIME%
-esp_sensor{ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="temperature"} %TEMPERATURE%
-esp_sensor{ip="%LOCALIP%", type="%ESPTYPE%", title="%HOSTNAME%", sensor="humidity"} %HUMIDITY%
+esp_device_uptime %UPTIME%
+esp_sensor_value{sensor="temperature"} %TEMPERATURE%
+esp_sensor_value{sensor="humidity"} %HUMIDITY%
 )rawliteral"; 
 
 // Replaces placeholder with AHT values
